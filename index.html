@@ -10,6 +10,8 @@
 		<link rel="stylesheet" href="http://code.leafletjs.com/leaflet-0.3.1/leaflet.ie.css" />
 		<script type="text/javascript" src="js/wax.leaflet.min.js"></script>
 		<script type="text/javascript" src="js/cartodb-leaflet.js"></script>
+		<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+		<script type="text/javascript" src="js/jquery-ui-1.8.19.custom.min.js"></script>
 
 		<script type="text/javascript">
 			var map;
@@ -17,12 +19,12 @@
 			function init() {
 				map = new L.Map('map', {
 					center: new L.LatLng(42.211279, 2.195804), 
-					zoom: 8
+					zoom: 10
 				});
 
-				var cloudmade = new L.TileLayer('http://{s}.tile.mapbox.com/v3/mapbox.blue-marble-topo-bathy-jul/{z}/{x}/{y}.png', {
+				var cloudmade = new L.TileLayer('http://{s}.tile.mapbox.com/v3/mapbox.mapbox-light/{z}/{x}/{y}.png', {
 					attribution : 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
-					maxZoom : 8
+					maxZoom : 17
 				});
 				
 				// geographical point (longitude and latitude)
@@ -40,10 +42,24 @@
 				  debug: true
 				});
 				map.addLayer(cartodb_actividades);
+
+				// Carga comarcas
+				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT%20id,nombre%20,ST_AsGeoJSON%28the_geom%29%20as%20the_geom%20FROM%20comarcas"}).done(function ( data ) {
+					var row = data.rows[0];
+					map.fitBounds(new L.LatLngBounds(new L.LatLng(row.ymin, row.xmin), new L.LatLng(row.ymax, row.xmax)));
+				});
+				
+			}
+
+			function zoom() {
+				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT%20id,ST_XMin%28the_geom%29%20as%20xmin,ST_XMax%28the_geom%29%20as%20xmax,ST_YMin%28the_geom%29%20as%20ymin,ST_YMax%28the_geom%29%20as%20ymax%20FROM%20comarcas%20WHERE%20ID=%2739%27"}).done(function ( data ) {
+					var row = data.rows[0];
+					map.fitBounds(new L.LatLngBounds(new L.LatLng(row.ymin, row.xmin), new L.LatLng(row.ymax, row.xmax)));
+				});
 			}
 		</script>
 	</head>
-	<body onload="init()">
+	<body onload="init()" onClick="zoom()">
 		<div id="map" style="height: 600px; width: 600px"></div>
 	</body>
 </html>
