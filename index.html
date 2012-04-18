@@ -15,6 +15,7 @@
 
 		<script type="text/javascript">
 			var map;
+			var comarcas;
 			
 			function init() {
 				map = new L.Map('map', {
@@ -41,25 +42,36 @@
 				  auto_bound: false,
 				  debug: true
 				});
-				map.addLayer(cartodb_actividades);
 
 				// Carga comarcas
-				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT%20id,nombre%20,ST_AsGeoJSON%28the_geom%29%20as%20the_geom%20FROM%20comarcas"}).done(function ( data ) {
-					var row = data.rows[0];
-					map.fitBounds(new L.LatLngBounds(new L.LatLng(row.ymin, row.xmin), new L.LatLng(row.ymax, row.xmax)));
+				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT%20id,nombre%20,ST_XMin%28the_geom%29%20as%20xmin,ST_XMax%28the_geom%29%20as%20xmax,ST_YMin%28the_geom%29%20as%20ymin,ST_YMax%28the_geom%29%20as%20ymax%20FROM%20comarcas order by nombre"}).done(function ( data ) {
+					comarcas = new Object();
+					$('#cmbComarcas').append($('<option>Elija una comarca</option>').val(-1));
+					for (i in data.rows) {
+						var row = data.rows[i];
+						comarcas[row.id] = {'xmin':row.xmin, 'ymin':row.ymin, 'xmax':row.xmax, 'ymax':row.ymax};
+						$('#cmbComarcas').append($('<option>'+row.nombre+'</option>').val(row.id));
+					}
+					console.log(comarcas);
 				});
-				
+				$('#cmbComarcas').change(function() {
+					comarcaCode = $('#cmbComarcas').val();
+					if (comarcaCode != -1) {
+						var bbox = comarcas[comarcaCode];
+						map.fitBounds(new L.LatLngBounds(new L.LatLng(bbox.ymin, bbox.xmin), new L.LatLng(bbox.ymax, bbox.xmax)));
+					}
+				});
+				/*
+				* Da "onadd is not a function" y no se ejecuta nada después
+				*/
+				map.addLayer(cartodb_actividades);
 			}
 
-			function zoom() {
-				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT%20id,ST_XMin%28the_geom%29%20as%20xmin,ST_XMax%28the_geom%29%20as%20xmax,ST_YMin%28the_geom%29%20as%20ymin,ST_YMax%28the_geom%29%20as%20ymax%20FROM%20comarcas%20WHERE%20ID=%2739%27"}).done(function ( data ) {
-					var row = data.rows[0];
-					map.fitBounds(new L.LatLngBounds(new L.LatLng(row.ymin, row.xmin), new L.LatLng(row.ymax, row.xmax)));
-				});
-			}
 		</script>
 	</head>
-	<body onload="init()" onClick="zoom()">
+	<body onload="init()">
 		<div id="map" style="height: 600px; width: 600px"></div>
+		<select id="cmbComarcas">
+		</select>
 	</body>
 </html>
