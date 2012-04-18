@@ -7,16 +7,21 @@
 		<link rel="stylesheet" href="http://code.leafletjs.com/leaflet-0.3.1/leaflet.css" />
 		<script src="http://code.leafletjs.com/leaflet-0.3.1/leaflet.js"></script>
 		<script type="text/javascript">
+			var map;
+			
 			function init() {
-				var map = new L.Map('map');
+				map = new L.Map('map', {
+					center: new L.LatLng(51.505, -0.09), 
+					zoom: 8
+				});
 
 				var cloudmade = new L.TileLayer('http://{s}.tile.mapbox.com/v3/mapbox.blue-marble-topo-bathy-jul/{z}/{x}/{y}.png', {
 					attribution : 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
 					maxZoom : 8
 				});
-				var london = new L.LatLng(51.505, -0.09);
+				
 				// geographical point (longitude and latitude)
-				map.setView(london, 8).addLayer(cloudmade);
+				map.addLayer(cloudmade);
 			}
 		</script>
 	</head>
