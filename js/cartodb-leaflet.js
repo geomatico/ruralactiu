@@ -84,7 +84,7 @@ if (typeof(L.CartoDBLayer) === "undefined") {
       cartodb_link.setAttribute('href','http://www.cartodb.com');
       cartodb_link.setAttribute('target','_blank');
       cartodb_link.innerHTML = "CartoDB";
-      document.body.appendChild(cartodb_link);
+//    document.body.appendChild(cartodb_link);
     }
 	  
 	  // Add cartodb tiles to the map
@@ -255,6 +255,13 @@ if (typeof(L.CartoDBLayer) === "undefined") {
     // CartoDB layer visible?
     L.CartoDBLayer.prototype.isVisible = function() {
     	return this.params.visible;
+    };
+
+    L.CartoDBLayer.prototype.onAdd = function() {
+    };
+
+    L.CartoDBLayer.prototype.onRemove = function() {
+	this.destroy();
     };
   };
 }

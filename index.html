@@ -17,7 +17,8 @@
 			var map;
 			var comarcas;
 			var municipios;
-			
+			var cartodb_actividades;
+
 			function init() {
 				map = new L.Map('map', {
 					center: new L.LatLng(42.211279, 2.195804), 
@@ -32,17 +33,7 @@
 				// geographical point (longitude and latitude)
 				map.addLayer(cloudmade);
 
-				var cartodb_actividades = new L.CartoDBLayer({
-				  map_canvas: 'map_canvas',
-				  map: map,
-				  user_name:"ruralactiu",
-				  table_name: 'actividades',
-				  query: "SELECT * FROM {{table_name}}",
-				  tile_style: "#{{table_name}}{marker-fill:#E25B5B}",
-				  infowindow: "SELECT name,description,tipo_actividad FROM {{table_name}} WHERE cartodb_id={{feature}}",
-				  auto_bound: false,
-				  debug: true
-				});
+				cartodb_actividades = newCartoDB("SELECT * FROM {{table_name}}");
 
 				// Combo de comarcas
 				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT id,nombre ,ST_XMin(the_geom) as xmin,ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax FROM comarcas order by nombre"}).done(function ( data ) {
@@ -89,6 +80,11 @@
 						map.fitBounds(new L.LatLngBounds(new L.LatLng(bbox.ymin, bbox.xmin), new L.LatLng(bbox.ymax, bbox.xmax)));
 					}
 				});
+				$('#btnBusqueda').click(function() {
+					map.removeLayer(cartodb_actividades);
+					cartodb_actividades = newCartoDB("SELECT * FROM {{table_name}} where descripcion like '%" + $('#txtBusqueda').val() + "%' or nombre like '%" + $('#txtBusqueda').val() + "%'");
+					map.addLayer(cartodb_actividades);
+				});
 
 				/*
 				* Da "onadd is not a function" y no se ejecuta nada después
@@ -96,6 +92,18 @@
 				map.addLayer(cartodb_actividades);
 			}
 
+			function newCartoDB(query) {
+				return new L.CartoDBLayer({
+				  map_canvas: 'map_canvas',
+				  map: map,
+				  user_name:"ruralactiu",
+				  table_name: 'actividades',
+				  query: query,
+				  infowindow: "SELECT nombre,descripcion,tipo_actividad FROM {{table_name}} WHERE cartodb_id={{feature}}",
+				  auto_bound: false,
+				  debug: true
+				});
+			}
 		</script>
 	</head>
 	<body onload="init()">
@@ -107,5 +115,7 @@
 		</select>
 		<select id="cmbTipoActividad">
 		</select>
+		<input id="txtBusqueda" type="text"></input>
+		<input id="btnBusqueda" type="submit" text="Buscar"></input>
 	</body>
 </html>
