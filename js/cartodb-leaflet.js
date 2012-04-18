@@ -118,7 +118,7 @@ if (typeof(L.CartoDBLayer) === "undefined") {
           click: function(feature, div, op3, evt) {
 	          var container_point = params.map.mouseEventToLayerPoint(evt)
 	          	, latlng = params.map.layerPointToLatLng(container_point);
-
+				
 	          params.popup.setLatLng(latlng);
 						params.popup.setContent(feature);
 						params.map.openPopup(params.popup);
@@ -357,7 +357,7 @@ L.CartoDBInfowindow = L.Class.extend({
 		this._container=L.DomUtil.create("div","leaflet-popup");
 		this._closeButton=L.DomUtil.create("a","leaflet-popup-close-button",this._container);
 		this._closeButton.href="#close";
-		this._closeButton.innerHTML="x";
+		//this._closeButton.innerHTML="x";
 		this._closeButton.onclick=L.Util.bind(this._onCloseButtonClick,this);
 		L.DomEvent.disableClickPropagation(this._closeButton);
 		this._wrapper=L.DomUtil.create("div","leaflet-popup-content-wrapper",this._container);
@@ -407,16 +407,22 @@ L.CartoDBInfowindow = L.Class.extend({
 	  this._contentNode.innerHTML = '';
 
 		// Add new ones
-		var content = '';
+		var content = "<image src='http://geomati.co/wp-content/uploads/2012/02/fergonco.png' />"
+		content += "<table class='leaflet-table-popup'>";
 		 for (p in variables) {
 		   if (p!='cartodb_id' && p!='the_geom_webmercator') {
-		    content += '<label>'+p+'</label><p class="'+((variables[p]!=null && variables[p]!='')?'':'empty')+'">'+(variables[p] || 'empty')+'</p>';
+		    //content += '<label>'+p+'</label><p class="'+((variables[p]!=null && variables[p]!='')?'':'empty')+'">'+(variables[p] || 'empty')+'</p>';
+		    content += "<tr><td class='leaflet-popup-title'>" + 
+		    		p + "</td><td class='leaflet-popup-variable'>" + 
+		    		variables[p] + "</td></tr>";
 		   }
 		 }
+		 content += "</table>";
+		 
 	  this._contentNode.innerHTML = content;
 	  
 	  // Show cartodb-id
-	  this._tipContainer.innerHTML = '<label>id: <strong>'+this._feature+'</strong></label>';
+	  //this._tipContainer.innerHTML = '<label>id: <strong>'+this._feature+'</strong></label>';
 	},
 
 	_updateLayout: function() {
