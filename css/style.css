@@ -9,9 +9,13 @@
 #map {
 	padding: 5px;
 	height: 600px;
-	width: 600px;
 }
 
 #btnTodos {
 	margin-left: 160px;
+}
+
+#txtBusqueda {
+	height: 32px;
+	border: 2px solid gray;
 }
