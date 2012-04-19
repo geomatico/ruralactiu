@@ -423,14 +423,14 @@ L.CartoDBInfowindow = L.Class.extend({
 
 			var not_show_fields = new Array('cartodb_id', 'the_geom_webmercator', 'the_geom', 'created_at', 'updated_at');
 			if(not_show_fields.indexOf(p) == -1) {
-				if(p == 'email') {
+				if(p == 'email' && variables[p] != null && variables[p] != '') {
 					content += "<tr><td class='leaflet-popup-title'>" + p + 
-					"</td><td class='leaflet-popup-variable'><a href='mailto:" + ((variables[p] != null && variables[p] != '') ? variables[p] + "'>" + 
-					variables[p] + "</a>" : '') + "</td></tr>";
-				} else if(p == 'documento') {
+					"</td><td class='leaflet-popup-variable'><a href='mailto:" + variables[p] + "'>" + 
+					variables[p] + "</a></td></tr>";
+				} else if(p == 'documento' && variables[p] != null && variables[p] != '') {
 					content += "<tr><td class='leaflet-popup-title'>" + p + 
-					"</td><td class='leaflet-popup-variable'><a href='" + ((variables[p] != null && variables[p] != '') ? variables[p] + "' target='_blank'>" + 
-					'Descarregar document associat' + "</a>" : '') + "</td></tr>";
+					"</td><td class='leaflet-popup-variable'><a href='" + variables[p] + "' target='_blank'>" + 
+					'Descarregar document associat' + "</a></td></tr>";
 				} else {
 					content += "<tr><td class='leaflet-popup-title'>" + p + 
 					"</td><td class='leaflet-popup-variable'>" + ((variables[p] != null && variables[p] != '') ? variables[p] : '') + "</td></tr>";
