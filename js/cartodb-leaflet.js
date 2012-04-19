@@ -203,55 +203,60 @@ if( typeof (L.CartoDBLayer) === "undefined") {
 			if(this.params.infowindow)
 				addWaxCartoDBTiles(this.params)
 			else
-				addSimpleCartoDBTiles(this.params);
+			  addSimpleCartoDBTiles(this.params);
+			
+      this.params.active = true;
+      this.params.visible = true;
+    };
 
-			this.params.active = true;
-			this.params.visible = true;
-		};
-		// Destroy layers from the map
-		L.CartoDBLayer.prototype.destroy = function() {
-			// First remove previous cartodb - tiles.
-			if(this.params.layer) {
-				this.params.map.removeLayer(this.params.layer);
-				delete this.params['layer'];
-			}
+    // Destroy layers from the map
+    L.CartoDBLayer.prototype.destroy = function() {
+     	// First remove previous cartodb - tiles.
+     	if (this.params.layer) {
+     		this.params.map.removeLayer(this.params.layer);
+     		delete this.params['layer'];
+     	}
 
-			if(this.params.popup) {
-				// Remove wax interaction
-				this.params.interaction.remove();
-				this.params.popup._close();
-				delete this.params['interaction'];
-				delete this.params['waxOptions'];
-				delete this.params['tilejson'];
-				delete this.params['popup'];
-			}
+    	if (this.params.popup) {
+        // Remove wax interaction
+        this.params.interaction.remove();
+        this.params.popup._close();
+        delete this.params['interaction'];
+        delete this.params['waxOptions'];
+        delete this.params['tilejson'];
+        delete this.params['popup'];
+    	}
 
-			this.params.active = false;
-		};
+    	this.params.active = false;
+    };
+
+		
 		// Hide layers from the map
-		L.CartoDBLayer.prototype.hide = function() {
-			if(this.params.visible)
-				this.destroy();
-			this.params.visible = false;
-		};
-		// Show layers from the map
-		L.CartoDBLayer.prototype.show = function() {
-			if(!this.params.visible || !this.params.active) {
-				this.update(this.params.query);
-			}
-		};
-		// CartoDB layer visible?
-		L.CartoDBLayer.prototype.isVisible = function() {
-			return this.params.visible;
-		};
+    L.CartoDBLayer.prototype.hide = function() {
+    	if (this.params.visible)
+    		this.destroy();
+    	this.params.visible = false;
+    };
+		    
 
-		L.CartoDBLayer.prototype.onAdd = function() {
-		};
+    // Show layers from the map
+    L.CartoDBLayer.prototype.show = function() {
+      if (!this.params.visible || !this.params.active) {
+        this.update(this.params.query);
+      }
+    };
 
-		L.CartoDBLayer.prototype.onRemove = function() {
-			this.destroy();
-		};
-	};
+    // CartoDB layer visible?
+    L.CartoDBLayer.prototype.isVisible = function() {
+    	return this.params.visible;
+    };
+
+    L.CartoDBLayer.prototype.onAdd = function() {
+    };
+
+    L.CartoDBLayer.prototype.onRemove = function() {
+    };
+  };
 }
 
 ////////////////////////
