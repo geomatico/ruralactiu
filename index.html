@@ -5,13 +5,17 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<title>RuralAcitu</title>
 		<link rel="stylesheet" href="http://code.leafletjs.com/leaflet-0.3.1/leaflet.css" />
-		<script src="http://code.leafletjs.com/leaflet-0.3.1/leaflet.js"></script>
-
 		<link rel="stylesheet" href="http://code.leafletjs.com/leaflet-0.3.1/leaflet.ie.css" />
+		<link rel="stylesheet" href="css/ui-darkness/jquery-ui-1.8.19.custom.css" />
+		<link rel="stylesheet" href="css/ui-darkness/jquery.ui.selectmenu.css" />
+		<link rel="stylesheet" href="css/style.css" />
+		
+		<script src="http://code.leafletjs.com/leaflet-0.3.1/leaflet.js"></script>
 		<script type="text/javascript" src="js/wax.leaflet.min.js"></script>
 		<script type="text/javascript" src="js/cartodb-leaflet.js"></script>
 		<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 		<script type="text/javascript" src="js/jquery-ui-1.8.19.custom.min.js"></script>
+		<script type="text/javascript" src="js/jquery.ui.selectmenu.js"></script>
 
 		<script type="text/javascript">
 			var map;
@@ -39,12 +43,13 @@
 				// Combo de comarcas
 				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT id,nombre ,ST_XMin(the_geom) as xmin,ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax FROM comarcas order by nombre"}).done(function ( data ) {
 					comarcas = new Object();
-					$('#cmbComarcas').append($('<option>Elija una comarca</option>').val(-1));
+					$('#cmbComarcas').append($('<option>(escolliu una comarca)</option>').val(-1));
 					for (i in data.rows) {
 						var row = data.rows[i];
 						comarcas[row.id] = {'xmin':row.xmin, 'ymin':row.ymin, 'xmax':row.xmax, 'ymax':row.ymax};
 						$('#cmbComarcas').append($('<option>'+row.nombre+'</option>').val(row.id));
 					}
+					$('#cmbComarcas').selectmenu();
 				});
 				// Combo de tipos de actividad
 				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT distinct(tipo_actividad) FROM actividades order by tipo_actividad"}).done(function ( data ) {
@@ -52,6 +57,7 @@
 						var row = data.rows[i];
 						$('#cmbTipoActividad').append($('<option>'+row.tipo_actividad+'</option>').val(row.tipo_actividad));
 					}
+					$('#cmbTipoActividad').selectmenu();
 				});
 				
 				// Eventos
@@ -72,6 +78,7 @@
 							municipios[row.id] = {'xmin':row.xmin, 'ymin':row.ymin, 'xmax':row.xmax, 'ymax':row.ymax};
 							$('#cmbMunicipios').append($('<option>'+row.nombre+'</option>').val(row.id));
 						}
+						$('#cmbMunicipios').selectmenu();
 					});
 				});
 				$('#cmbMunicipios').change(function() {
@@ -98,6 +105,9 @@
 				$('#btnTodos').click(function() {
 					updateCartoDBLayer(filtroTodasLasActividades, "true");
 				});
+				
+				$("input:submit").button();
+				$('select').selectmenu();
 			}
 
 			function updateCartoDBLayer(layerQuery, extentWhere) {
@@ -150,17 +160,21 @@
 		</script>
 	</head>
 	<body onload="init()">
-		<div id="map" style="height: 600px; width: 600px"></div>
-		<select id="cmbComarcas">
-		</select>
-		<select id="cmbMunicipios">
-			<option value="-1">Elija primero una comarca</option>
-		</select>
-		<select id="cmbTipoActividad">
-			<option value="-1">Seleccione una actividad</option>
-		</select>
-		<input id="txtBusqueda" type="text"></input>
-		<input id="btnBusqueda" type="submit" value="Buscar"></input>
-		<input id="btnTodos" type="submit" value="Mostrar todos"></input>
+		<div class="formulario">
+			<select id="cmbComarcas">
+			</select>
+			<select id="cmbMunicipios">
+				<option value="-1">(escolliu un municipi)</option>
+			</select>
+			<br/>
+			<select id="cmbTipoActividad">
+				<option value="-1">(escolliu una activitat)</option>
+			</select>
+			<span class="ui-widget"><input id="txtBusqueda" type="text" class="ui-widget-content"></input></span>
+			<input id="btnBusqueda" type="submit" value="Cerca"></input>
+			<br/>
+			<input id="btnTodos" type="submit" value="Mostra totes les activitats"></input>
+		</div>
+		<div id="map"></div>
 	</body>
 </html>

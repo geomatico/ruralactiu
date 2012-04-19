@@ -1,0 +1,13 @@
+.formulario {
+	padding: 5px;
+}
+
+.formulario select{
+	width: 300px;
+}
+
+#map {
+	padding: 5px;
+	height: 600px;
+	width: 600px;
+}
