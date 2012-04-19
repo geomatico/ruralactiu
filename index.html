@@ -33,8 +33,8 @@
 				
 				// geographical point (longitude and latitude)
 				map.addLayer(cloudmade);
-
 				cartodb_actividades = newCartoDB(filtroTodasLasActividades);
+				map.addLayer(cartodb_actividades);
 
 				// Combo de comarcas
 				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT id,nombre ,ST_XMin(the_geom) as xmin,ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax FROM comarcas order by nombre"}).done(function ( data ) {
@@ -48,13 +48,13 @@
 				});
 				// Combo de tipos de actividad
 				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT distinct(tipo_actividad) FROM actividades order by tipo_actividad"}).done(function ( data ) {
-					$('#cmbTipoActividad').append($('<option>Elija una actividad de interés</option>').val(-1));
 					for (i in data.rows) {
 						var row = data.rows[i];
 						$('#cmbTipoActividad').append($('<option>'+row.tipo_actividad+'</option>').val(row.tipo_actividad));
 					}
 				});
 				
+				// Eventos
 				$('#cmbComarcas').change(function() {
 					comarcaCode = $('#cmbComarcas').val();
 					if (comarcaCode != -1) {
@@ -81,6 +81,14 @@
 						map.fitBounds(new L.LatLngBounds(new L.LatLng(bbox.ymin, bbox.xmin), new L.LatLng(bbox.ymax, bbox.xmax)));
 					}
 				});
+				$('#cmbTipoActividad').change(function() {
+					tipoActividad = $('#cmbTipoActividad').val();
+					if (tipoActividad != -1) {
+						map.removeLayer(cartodb_actividades);
+						cartodb_actividades = newCartoDB("SELECT * FROM {{table_name}} where tipo_actividad='" + tipoActividad + "'");
+						map.addLayer(cartodb_actividades);
+					}
+				});
 				$('#btnBusqueda').click(function() {
 					map.removeLayer(cartodb_actividades);
 					cartodb_actividades = newCartoDB("SELECT * FROM {{table_name}} where descripcion like '%" + $('#txtBusqueda').val() + "%' or nombre like '%" + $('#txtBusqueda').val() + "%'");
@@ -91,11 +99,6 @@
 					cartodb_actividades = newCartoDB(filtroTodasLasActividades);
 					map.addLayer(cartodb_actividades);
 				});
-
-				/*
-				* Da "onadd is not a function" y no se ejecuta nada después
-				*/
-				map.addLayer(cartodb_actividades);
 			}
 
 			function newCartoDB(query) {
@@ -120,6 +123,7 @@
 			<option value="-1">Elija primero una comarca</option>
 		</select>
 		<select id="cmbTipoActividad">
+			<option value="-1">Seleccione una actividad</option>
 		</select>
 		<input id="txtBusqueda" type="text"></input>
 		<input id="btnBusqueda" type="submit" value="Buscar"></input>
