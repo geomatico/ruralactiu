@@ -421,26 +421,32 @@ L.CartoDBInfowindow = L.Class.extend({
 
 			var not_show_fields = new Array('cartodb_id', 'the_geom_webmercator', 'the_geom', 'created_at', 'updated_at');
 			var map_fields = {
-				nombre: 'Nombre',
-				descripcion: 'Descripción',
-				direccion_postal: 'Dirección Postal',
-				documento: 'Documentación',
-				email: 'E-mail',
-				fechas: 'Fechas',
-				plazas_libres: 'Plazas Libres',
-				precio: 'Precio',
-				tipo_actividad: 'Tipo Actividad'
+				nombre: 'Activitat',
+				descripcion: 'Descripció',
+				direccion_postal: 'Adreça Postal',
+				documento: 'Documentació',
+				email: 'Correu',
+				fechas: 'Dates',
+				plazas_libres: 'Places Lliures',
+				precio: 'Preu',
+				tipo_actividad: "Tipus d'activitat",
+				alojamiento: 'Nom Allotjament',
+				enlace_alojamiento: 'Enlaç Allotjament'
 			}
 			
 			if(not_show_fields.indexOf(p) == -1) {
 				if(p == 'email' && variables[p] != null && variables[p] != '') {
-					content += "<tr><td class='leaflet-popup-title'>" + p + 
+					content += "<tr><td class='leaflet-popup-title'>" + map_fields[p] + 
 					"</td><td class='leaflet-popup-variable'><a href='mailto:" + variables[p] + "'>" + 
 					variables[p] + "</a></td></tr>";
 				} else if(p == 'documento' && variables[p] != null && variables[p] != '') {
-					content += "<tr><td class='leaflet-popup-title'>" + p + 
+					content += "<tr><td class='leaflet-popup-title'>" + map_fields[p] + 
 					"</td><td class='leaflet-popup-variable'><a href='" + variables[p] + "' target='_blank'>" + 
 					'Descarregar document associat' + "</a></td></tr>";
+				} else if(p == 'enlace_alojamiento' && variables[p] != null && variables[p] != '') {
+					content += "<tr><td class='leaflet-popup-title'>" + map_fields[p] + 
+					"</td><td class='leaflet-popup-variable'><a href='" + variables[p] + "' target='_blank'>" + 
+					"Vés a l'allotjament" + "</a></td></tr>";
 				} else {
 					content += "<tr><td class='leaflet-popup-title'>" + map_fields[p] + 
 					"</td><td class='leaflet-popup-variable'>" + ((variables[p] != null && variables[p] != '') ? variables[p] : '') + "</td></tr>";
