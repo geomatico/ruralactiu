@@ -72,7 +72,7 @@
 					$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT id,nombre ,ST_XMin (the_geom) as xmin,ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax FROM municipios where id_comarca='" + comarcaCode + "' order by nombre"}).done(function ( data ) {
 						municipios = new Object();
 						$('#cmbMunicipios').children().remove();
-						$('#cmbMunicipios').append($('<option>Elija un municipio</option>').val(-1));
+						$('#cmbMunicipios').append($('<option>(escolliu un municipi)</option>').val(-1));
 						for (i in data.rows) {
 							var row = data.rows[i];
 							municipios[row.id] = {'xmin':row.xmin, 'ymin':row.ymin, 'xmax':row.xmax, 'ymax':row.ymax};
