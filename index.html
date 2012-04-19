@@ -84,15 +84,55 @@
 				$('#cmbTipoActividad').change(function() {
 					tipoActividad = $('#cmbTipoActividad').val();
 					if (tipoActividad != -1) {
-						cartodb_actividades.update({query:"SELECT * FROM {{table_name}} where tipo_actividad='" + tipoActividad + "'"});
+						updateCartoDBLayer("SELECT * FROM {{table_name}} WHERE tipo_actividad='" + tipoActividad + "'",
+								"tipo_actividad='" + tipoActividad + "'");
 					}
 				});
 				$('#btnBusqueda').click(function() {
-					cartodb_actividades.update({query:"SELECT * FROM {{table_name}} where descripcion like '%" + $('#txtBusqueda').val() + "%' or nombre like '%" + $('#txtBusqueda').val() + "%'"});
+					updateCartoDBLayer("SELECT * FROM {{table_name}} where "
+							+ "descripcion like '%"	+ $('#txtBusqueda').val() + "%' "
+							+ "or nombre like '%" + $('#txtBusqueda').val() + "%'",
+							"descripcion like '%25"	+ $('#txtBusqueda').val() + "%25' "
+							+ "or nombre like '%25" + $('#txtBusqueda').val() + "%25'");
 				});
 				$('#btnTodos').click(function() {
-					cartodb_actividades.update({query:filtroTodasLasActividades});
+					updateCartoDBLayer(filtroTodasLasActividades, "true");
 				});
+			}
+
+			function updateCartoDBLayer(layerQuery, extentWhere) {
+				cartodb_actividades.update({query:layerQuery});
+				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT "
+						+ "ST_XMin (ST_Extent(the_geom)) as xmin,"
+						+ "ST_XMax (ST_Extent(the_geom)) as xmax,"
+						+ "ST_YMin (ST_Extent(the_geom)) as ymin,"
+						+ "ST_YMax (ST_Extent(the_geom)) as ymax "
+							+ "FROM actividades WHERE " + extentWhere}).done(function ( data ) {
+					if (data.rows.length > 0) {
+						var row = data.rows[0];
+						var sw = new L.LatLng(row.ymin, row.xmin);
+						var ne = new L.LatLng(row.ymax, row.xmax);
+						
+						// Check minimum bounds size
+						var width = row.xmax - row.xmin;
+						var minSize = 0.05;
+						if (width < minSize) {
+							ne.lng = ne.lng + minSize/2;
+							sw.lng = sw.lng - minSize/2;
+						}
+						var height = row.ymax - row.ymin;
+						if (height < minSize) {
+							ne.lat = ne.lat + minSize/2;
+							sw.lat = sw.lat - minSize/2;
+						}
+						
+						console.log(sw);
+						console.log(ne);
+						
+						map.fitBounds(new L.LatLngBounds(sw, ne));
+					}
+				});
+				
 			}
 
 			function newCartoDB(query) {
