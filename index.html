@@ -27,10 +27,7 @@
 			var filtroTodasLasActividades = "SELECT * FROM {{table_name}}";
 
 			function init() {
-				map = new L.Map('map', {
-					center: new L.LatLng(42.211279, 2.195804), 
-					zoom: 10
-				});
+				map = new L.Map('map');
 
 				var cloudmade = new L.TileLayer('http://{s}.tile.mapbox.com/v3/mapbox.mapbox-light/{z}/{x}/{y}.png', {
 					attribution : 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
@@ -40,15 +37,15 @@
 				// geographical point (longitude and latitude)
 				map.addLayer(cloudmade);
 				cartodb_actividades = new L.CartoDBLayer({
-					  map_canvas: 'map_canvas',
-					  map: map,
-					  user_name:"ruralactiu",
-					  table_name: 'actividades',
-					  query: filtroTodasLasActividades,
-					  infowindow: "SELECT * FROM {{table_name}} WHERE cartodb_id={{feature}}",
-					  auto_bound: false,
-					  debug: true
-					});
+				          map_canvas: 'map_canvas',
+				          map: map,
+				          user_name:"ruralactiu",
+				          table_name: 'actividades',
+				          query: filtroTodasLasActividades,
+				          infowindow: "SELECT * FROM {{table_name}} WHERE cartodb_id={{feature}}",
+				          auto_bound: false,
+				          debug: true
+				        });
 				map.addLayer(cartodb_actividades);
 				cartodb_comarcas = new L.CartoDBLayer({
 					  map_canvas: 'map_canvas',
@@ -60,7 +57,7 @@
 					  auto_bound: false,
 					  debug: true
 					});
-				map.addLayer(cartodb_comarcas);	
+				map.addLayer(cartodb_comarcas);
 				cartodb_municipios = new L.CartoDBLayer({
 					  map_canvas: 'map_canvas',
 					  map: map,
@@ -71,7 +68,18 @@
 					  auto_bound: false,
 					  debug: true
 					});
-				map.addLayer(cartodb_municipios);	
+				map.addLayer(cartodb_municipios);
+				
+				// Zoom a actividades
+				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT "
+						+ "ST_XMin (ST_Extent(the_geom)) as xmin,"
+						+ "ST_XMax (ST_Extent(the_geom)) as xmax,"
+						+ "ST_YMin (ST_Extent(the_geom)) as ymin,"
+						+ "ST_YMax (ST_Extent(the_geom)) as ymax "
+						+ "FROM actividades"}).done(function ( data ) {
+					var bbox = data.rows[0];
+					map.fitBounds(new L.LatLngBounds(new L.LatLng(bbox.ymin, bbox.xmin), new L.LatLng(bbox.ymax, bbox.xmax)));
+				});
 
 				// Combo de comarcas
 				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT id,nombre ,ST_XMin(the_geom) as xmin,ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax FROM comarcas order by nombre"}).done(function ( data ) {
