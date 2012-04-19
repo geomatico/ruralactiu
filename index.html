@@ -18,6 +18,7 @@
 			var comarcas;
 			var municipios;
 			var cartodb_actividades;
+			var filtroTodasLasActividades = "SELECT * FROM {{table_name}}";
 
 			function init() {
 				map = new L.Map('map', {
@@ -33,7 +34,7 @@
 				// geographical point (longitude and latitude)
 				map.addLayer(cloudmade);
 
-				cartodb_actividades = newCartoDB("SELECT * FROM {{table_name}}");
+				cartodb_actividades = newCartoDB(filtroTodasLasActividades);
 
 				// Combo de comarcas
 				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT id,nombre ,ST_XMin(the_geom) as xmin,ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax FROM comarcas order by nombre"}).done(function ( data ) {
@@ -85,6 +86,11 @@
 					cartodb_actividades = newCartoDB("SELECT * FROM {{table_name}} where descripcion like '%" + $('#txtBusqueda').val() + "%' or nombre like '%" + $('#txtBusqueda').val() + "%'");
 					map.addLayer(cartodb_actividades);
 				});
+				$('#btnTodos').click(function() {
+					map.removeLayer(cartodb_actividades);
+					cartodb_actividades = newCartoDB(filtroTodasLasActividades);
+					map.addLayer(cartodb_actividades);
+				});
 
 				/*
 				* Da "onadd is not a function" y no se ejecuta nada después
@@ -116,6 +122,7 @@
 		<select id="cmbTipoActividad">
 		</select>
 		<input id="txtBusqueda" type="text"></input>
-		<input id="btnBusqueda" type="submit" text="Buscar"></input>
+		<input id="btnBusqueda" type="submit" value="Buscar"></input>
+		<input id="btnTodos" type="submit" value="Mostrar todos"></input>
 	</body>
 </html>
