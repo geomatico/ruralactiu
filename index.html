@@ -22,6 +22,8 @@
 			var comarcas;
 			var municipios;
 			var cartodb_actividades;
+			var cartodb_comarcas;
+			var cartodb_municipios;
 			var filtroTodasLasActividades = "SELECT * FROM {{table_name}}";
 
 			function init() {
@@ -37,8 +39,39 @@
 				
 				// geographical point (longitude and latitude)
 				map.addLayer(cloudmade);
-				cartodb_actividades = newCartoDB(filtroTodasLasActividades);
+				cartodb_actividades = new L.CartoDBLayer({
+					  map_canvas: 'map_canvas',
+					  map: map,
+					  user_name:"ruralactiu",
+					  table_name: 'actividades',
+					  query: filtroTodasLasActividades,
+					  infowindow: "SELECT * FROM {{table_name}} WHERE cartodb_id={{feature}}",
+					  auto_bound: false,
+					  debug: true
+					});
 				map.addLayer(cartodb_actividades);
+				cartodb_comarcas = new L.CartoDBLayer({
+					  map_canvas: 'map_canvas',
+					  map: map,
+					  user_name:"ruralactiu",
+					  table_name: 'comarcas',
+					  query: "SELECT * FROM {{table_name}} where false",
+					  infowindow: "SELECT * FROM {{table_name}} WHERE cartodb_id={{feature}}",
+					  auto_bound: false,
+					  debug: true
+					});
+				map.addLayer(cartodb_comarcas);	
+				cartodb_municipios = new L.CartoDBLayer({
+					  map_canvas: 'map_canvas',
+					  map: map,
+					  user_name:"ruralactiu",
+					  table_name: 'municipios',
+					  query: "SELECT * FROM {{table_name}} WHERE false",
+					  infowindow: "SELECT * FROM {{table_name}} WHERE cartodb_id={{feature}}",
+					  auto_bound: false,
+					  debug: true
+					});
+				map.addLayer(cartodb_municipios);	
 
 				// Combo de comarcas
 				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT id,nombre ,ST_XMin(the_geom) as xmin,ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax FROM comarcas order by nombre"}).done(function ( data ) {
@@ -66,6 +99,8 @@
 					if (comarcaCode != -1) {
 						var bbox = comarcas[comarcaCode];
 						map.fitBounds(new L.LatLngBounds(new L.LatLng(bbox.ymin, bbox.xmin), new L.LatLng(bbox.ymax, bbox.xmax)));
+						cartodb_comarcas.update({query:"SELECT * FROM {{table_name}} where id='" + comarcaCode + "'"});
+						cartodb_municipios.update({query:"SELECT * FROM {{table_name}} where id_comarca='" + comarcaCode + "'"});
 					}
 
 					// Rellena municipios
@@ -91,26 +126,26 @@
 				$('#cmbTipoActividad').change(function() {
 					tipoActividad = $('#cmbTipoActividad').val();
 					if (tipoActividad != -1) {
-						updateCartoDBLayer("SELECT * FROM {{table_name}} WHERE tipo_actividad='" + tipoActividad + "'",
+						updateCartoDBActividades("SELECT * FROM {{table_name}} WHERE tipo_actividad='" + tipoActividad + "'",
 								"tipo_actividad='" + tipoActividad + "'");
 					}
 				});
 				$('#btnBusqueda').click(function() {
-					updateCartoDBLayer("SELECT * FROM {{table_name}} where "
-							+ "descripcion like '%"	+ $('#txtBusqueda').val() + "%' "
-							+ "or nombre like '%" + $('#txtBusqueda').val() + "%'",
-							"descripcion like '%25"	+ $('#txtBusqueda').val() + "%25' "
-							+ "or nombre like '%25" + $('#txtBusqueda').val() + "%25'");
+					updateCartoDBActividades("SELECT * FROM {{table_name}} where "
+							+ "lower(descripcion) like '%"	+ $('#txtBusqueda').val() + "%' "
+							+ "or lower(nombre) like '%" + $('#txtBusqueda').val() + "%'",
+							"lower(descripcion) like '%25"	+ $('#txtBusqueda').val() + "%25' "
+							+ "or lower(nombre) like '%25" + $('#txtBusqueda').val() + "%25'");
 				});
 				$('#btnTodos').click(function() {
-					updateCartoDBLayer(filtroTodasLasActividades, "true");
+					updateCartoDBActividades(filtroTodasLasActividades, "true");
 				});
 				
 				$("input:submit").button();
 				$('select').selectmenu();
 			}
 
-			function updateCartoDBLayer(layerQuery, extentWhere) {
+			function updateCartoDBActividades(layerQuery, extentWhere) {
 				cartodb_actividades.update({query:layerQuery});
 				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT "
 						+ "ST_XMin (ST_Extent(the_geom)) as xmin,"
@@ -143,19 +178,6 @@
 					}
 				});
 				
-			}
-
-			function newCartoDB(query) {
-				return new L.CartoDBLayer({
-				  map_canvas: 'map_canvas',
-				  map: map,
-				  user_name:"ruralactiu",
-				  table_name: 'actividades',
-				  query: query,
-				  infowindow: "SELECT * FROM {{table_name}} WHERE cartodb_id={{feature}}",
-				  auto_bound: false,
-				  debug: true
-				});
 			}
 		</script>
 	</head>
