@@ -261,7 +261,6 @@ if (typeof(L.CartoDBLayer) === "undefined") {
     };
 
     L.CartoDBLayer.prototype.onRemove = function() {
-	this.destroy();
     };
   };
 }

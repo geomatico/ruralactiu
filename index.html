@@ -84,20 +84,14 @@
 				$('#cmbTipoActividad').change(function() {
 					tipoActividad = $('#cmbTipoActividad').val();
 					if (tipoActividad != -1) {
-						map.removeLayer(cartodb_actividades);
-						cartodb_actividades = newCartoDB("SELECT * FROM {{table_name}} where tipo_actividad='" + tipoActividad + "'");
-						map.addLayer(cartodb_actividades);
+						cartodb_actividades.update({query:"SELECT * FROM {{table_name}} where tipo_actividad='" + tipoActividad + "'"});
 					}
 				});
 				$('#btnBusqueda').click(function() {
-					map.removeLayer(cartodb_actividades);
-					cartodb_actividades = newCartoDB("SELECT * FROM {{table_name}} where descripcion like '%" + $('#txtBusqueda').val() + "%' or nombre like '%" + $('#txtBusqueda').val() + "%'");
-					map.addLayer(cartodb_actividades);
+					cartodb_actividades.update({query:"SELECT * FROM {{table_name}} where descripcion like '%" + $('#txtBusqueda').val() + "%' or nombre like '%" + $('#txtBusqueda').val() + "%'"});
 				});
 				$('#btnTodos').click(function() {
-					map.removeLayer(cartodb_actividades);
-					cartodb_actividades = newCartoDB(filtroTodasLasActividades);
-					map.addLayer(cartodb_actividades);
+					cartodb_actividades.update({query:filtroTodasLasActividades});
 				});
 			}
 
