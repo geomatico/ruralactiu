@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<title>RuralAcitu</title>
+		<title>RuralActiu</title>
 		<link rel="stylesheet" href="http://code.leafletjs.com/leaflet-0.3.1/leaflet.css" />
 		<link rel="stylesheet" href="http://code.leafletjs.com/leaflet-0.3.1/leaflet.ie.css" />
 		<link rel="stylesheet" href="css/ui-darkness/jquery-ui-1.8.19.custom.css" />
@@ -76,13 +76,18 @@
 						+ "ST_XMax (ST_Extent(the_geom)) as xmax,"
 						+ "ST_YMin (ST_Extent(the_geom)) as ymin,"
 						+ "ST_YMax (ST_Extent(the_geom)) as ymax "
-						+ "FROM actividades"}).done(function ( data ) {
+						+ "FROM actividades",
+						dataType:"json"}).done(function ( data ) {
 					var bbox = data.rows[0];
 					map.fitBounds(new L.LatLngBounds(new L.LatLng(bbox.ymin, bbox.xmin), new L.LatLng(bbox.ymax, bbox.xmax)));
 				});
 
 				// Combo de comarcas
-				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT id,nombre ,ST_XMin(the_geom) as xmin,ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax FROM comarcas order by nombre"}).done(function ( data ) {
+				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT "
+						+ "id, nombre, "
+						+ "ST_XMin(the_geom) as xmin, ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax "
+						+ "FROM comarcas order by nombre",
+					dataType:"json"}).done(function ( data ) {
 					comarcas = new Object();
 					$('#cmbComarcas').append($('<option>(escolliu una comarca)</option>').val(-1));
 					for (i in data.rows) {
@@ -93,7 +98,7 @@
 					$('#cmbComarcas').selectmenu();
 				});
 				// Combo de tipos de actividad
-				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT distinct(tipo_actividad) FROM actividades order by tipo_actividad"}).done(function ( data ) {
+				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT distinct(tipo_actividad) FROM actividades order by tipo_actividad",dataType:"json"}).done(function ( data ) {
 					for (i in data.rows) {
 						var row = data.rows[i];
 						$('#cmbTipoActividad').append($('<option>'+row.tipo_actividad+'</option>').val(row.tipo_actividad));
@@ -112,7 +117,7 @@
 					}
 
 					// Rellena municipios
-					$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT id,nombre ,ST_XMin (the_geom) as xmin,ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax FROM municipios where id_comarca='" + comarcaCode + "' order by nombre"}).done(function ( data ) {
+					$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT id,nombre ,ST_XMin (the_geom) as xmin,ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax FROM municipios where id_comarca='" + comarcaCode + "' order by nombre",dataType:"json"}).done(function ( data ) {
 						municipios = new Object();
 						$('#cmbMunicipios').children().remove();
 						$('#cmbMunicipios').append($('<option>(escolliu un municipi)</option>').val(-1));
@@ -160,7 +165,7 @@
 						+ "ST_XMax (ST_Extent(the_geom)) as xmax,"
 						+ "ST_YMin (ST_Extent(the_geom)) as ymin,"
 						+ "ST_YMax (ST_Extent(the_geom)) as ymax "
-							+ "FROM actividades WHERE " + extentWhere}).done(function ( data ) {
+							+ "FROM actividades WHERE " + extentWhere, dataType:"json"}).done(function ( data ) {
 					if (data.rows.length > 0) {
 						var row = data.rows[0];
 						var sw = new L.LatLng(row.ymin, row.xmin);

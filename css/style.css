@@ -19,3 +19,13 @@
 	height: 32px;
 	border: 2px solid gray;
 }
+
+.leaflet-popup-title {
+	font-weight: bold;
+	border-bottom: 2px solid #CCCCCC;
+}
+
+.leaflet-popup-variable {
+	font-style: italic;
+	border-bottom: 1px solid #CCCCCC;
+}

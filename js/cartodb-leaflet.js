@@ -405,17 +405,17 @@ L.CartoDBInfowindow = L.Class.extend({
 		var image;
 		switch (variables.tipo_actividad) {
 			case "Experiencia rural":
-				image = "http://geomati.co/wp-content/uploads/2012/02/fergonco.png";
-				break
+				image = "img/rural.jpg";
+				break;
 			case "Experiencia histórica":
-				image = "http://www.festivaldecalasparra.com/noticias/historica.jpg";
+				image = "img/historica.jpg";
 				break;
 			case "Experiencia saludable":
-				image = "http://www.b1enestar.com/wp-content/uploads/2008/09/vida-saludable.jpg";
+				image = "img/saludable.jpg";
 				break;
 		}
 		// Add new ones
-		var content = "<image src='" + image + "' />"
+		var content = '<image src="' + image + '" width="96" />';
 		content += "<table class='leaflet-table-popup'>";
 		for(p in variables) {
 
