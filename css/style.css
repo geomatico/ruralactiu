@@ -1,23 +1,73 @@
-.formulario {
-	padding: 5px;
+body {
+    padding: 0;
+    margin: 0;
 }
 
-.formulario select{
-	width: 300px;
+html, body, #map {
+	height: 100%;
 }
 
 #map {
+	width: 100%;
+	min-width: 256px;
+	min-height: 256px;
+}
+
+.borde {
+	background: none repeat scroll 0 0 rgba(0, 0, 0, 0.25);
+    padding: 5px;
+	border-radius: 7px 7px 7px 7px;
+	z-index: 999999;
+}
+
+#toggleBorde {
+	position: absolute;
+	top: 12px;
+	right: 12px;	
+}
+
+#toggleForm {
+	cursor: pointer;
+	background-color: #EEEEEE;
+	border-radius: 4px 4px 4px 4px;
+    height: 19px;
+    width: 19px;
+	background-position: 50% 50%;
+    background-repeat: no-repeat;
+	background-image: url("../img/query-icon.png");
+}
+
+#formulario {
+	display: none;
+	position: absolute;
+	top: 5px;
+	right: 0px;
+	background: none repeat scroll 0 0 rgba(255, 255, 255, 0.7);
 	padding: 5px;
-	height: 600px;
+	padding-right:0;
+	margin-right: 5px;
+	width: 205px;
+	z-index: 99999;
+	border: 1px solid gray;
+}
+
+h4 {
+	margin: 5px;
+	font-family: Sans-serif;
+	height: 25px;
+}
+
+#formulario select{
+	width: 200px;
 }
 
 #btnTodos {
-	margin-left: 160px;
+	width: 200px;
 }
 
 #txtBusqueda {
-	height: 32px;
-	border: 2px solid gray;
+	width: 130px;
+	margin: 0;
 }
 
 .leaflet-popup-title {

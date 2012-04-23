@@ -407,7 +407,7 @@ L.CartoDBInfowindow = L.Class.extend({
 			case "Experiencia rural":
 				image = "img/rural.jpg";
 				break;
-			case "Experiencia histórica":
+			case "Experiencia històrica":
 				image = "img/historica.jpg";
 				break;
 			case "Experiencia saludable":
