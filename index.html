@@ -35,6 +35,9 @@
 					maxZoom : 17
 				});
 				
+				cartodb_comarcas = addCartoDBLayer('comarcas', "SELECT * FROM {{table_name}} where false");
+				cartodb_municipios = addCartoDBLayer('municipios', "SELECT * FROM {{table_name}} WHERE false");
+				
 				// geographical point (longitude and latitude)
 				map.addLayer(cloudmade);
 				cartodb_actividades = new L.CartoDBLayer({
@@ -48,26 +51,6 @@
 				          debug: true
 				        });
 				map.addLayer(cartodb_actividades);
-				cartodb_comarcas = new L.CartoDBLayer({
-					  map_canvas: 'map_canvas',
-					  map: map,
-					  user_name:"ruralactiu",
-					  table_name: 'comarcas',
-					  query: "SELECT * FROM {{table_name}} where false",
-					  auto_bound: false,
-					  debug: true
-					});
-				map.addLayer(cartodb_comarcas);
-				cartodb_municipios = new L.CartoDBLayer({
-					  map_canvas: 'map_canvas',
-					  map: map,
-					  user_name:"ruralactiu",
-					  table_name: 'municipios',
-					  query: "SELECT * FROM {{table_name}} WHERE false",
-					  auto_bound: false,
-					  debug: true
-					});
-				map.addLayer(cartodb_municipios);
 				
 				// Zoom a actividades
 				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT "
@@ -109,8 +92,11 @@
 					if (comarcaCode != -1) {
 						var bbox = comarcas[comarcaCode];
 						map.fitBounds(new L.LatLngBounds(new L.LatLng(bbox.ymin, bbox.xmin), new L.LatLng(bbox.ymax, bbox.xmax)));
-						cartodb_comarcas.update({query:"SELECT * FROM {{table_name}} where id='" + comarcaCode + "'"});
-						cartodb_municipios.update({query:"SELECT * FROM {{table_name}} where id_comarca='" + comarcaCode + "'"});
+						//cartodb_comarcas.update({query:"SELECT * FROM {{table_name}} where id='" + comarcaCode + "'"});
+						//cartodb_municipios.update({query:"SELECT * FROM {{table_name}} where id_comarca='" + comarcaCode + "'"});
+						cartodb_comarcas = updateCartoDBLayer(cartodb_comarcas, 'comarcas', "SELECT * FROM {{table_name}} where id='" + comarcaCode + "'");
+						cartodb_municipios = updateCartoDBLayer(cartodb_municipios, 'municipios', "SELECT * FROM {{table_name}} where id_comarca='" + comarcaCode + "'");
+						console.log(map._layers);
 					}
 
 					// Rellena municipios
@@ -149,6 +135,28 @@
 				$('#btnTodos').click(function() {
 					updateCartoDBActividades(filtroTodasLasActividades, "true");
 				});
+			}
+			
+			function addCartoDBLayer(tablename, query) {
+				var cartoDBLayer = new L.CartoDBLayer({
+					map_canvas: 'map_canvas',
+					map: map,
+					user_name:"ruralactiu",
+					table_name: tablename,
+					query: query,
+					auto_bound: false,
+					debug: true
+				});
+				map.addLayer(cartoDBLayer);
+				
+				return cartoDBLayer;
+			}
+			
+			function updateCartoDBLayer(oldLayer, tablename, query) {				
+				
+				map.removeLayer(oldLayer);
+				var cartoDBLayer = addCartoDBLayer(tablename, query);
+				return cartoDBLayer;		
 			}
 
 			function updateCartoDBActividades(layerQuery, extentWhere) {
