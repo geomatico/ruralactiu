@@ -1,0 +1,3 @@
+[submodule "cartodb-leaflet"]
+	path = cartodb-leaflet
+	url = git://github.com/Vizzuality/cartodb-leaflet.git

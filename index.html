@@ -1,5 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<title>RuralActiu</title>
@@ -7,13 +6,16 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 		
-		<link rel="stylesheet" href="http://code.leafletjs.com/leaflet-0.3.1/leaflet.css" />
-		<link rel="stylesheet" href="http://code.leafletjs.com/leaflet-0.3.1/leaflet.ie.css" />
+  		<link rel="stylesheet" href="css/leaflet.css" />
+  		<!--[if lte IE 8]><link rel="stylesheet" href="css/leaflet.ie.css" /><![endif]-->
+		<link rel="stylesheet" href="cartodb-leaflet/cartodb.css" />
 		<link rel="stylesheet" href="css/style.css" />
 		
-		<script src="http://code.leafletjs.com/leaflet-0.3.1/leaflet.js"></script>
-		<script type="text/javascript" src="js/wax.leaflet.min.js"></script>
-		<script type="text/javascript" src="js/cartodb-leaflet.js"></script>
+		<!-- script type="text/javascript" src="js/leaflet-src.js"></script-->
+		<script type="text/javascript" src="js/leaflet.js"></script>
+		<script type="text/javascript" src="cartodb-leaflet/wax.leaf.min-6.0.0-beta2.js"></script>
+		<script type="text/javascript" src="cartodb-leaflet/cartodb-leaflet.js"></script>
+		<script type="text/javascript" src="cartodb-leaflet/cartodb-infowindow.js"></script>
 		<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 
 		<script type="text/javascript">
@@ -24,45 +26,77 @@
 			var cartodb_comarcas;
 			var cartodb_municipios;
 			var filtroTodasLasActividades = "SELECT * FROM {{table_name}}";
-
+			var popup;
+			
+			var infoLabels = {
+				nombre: 'Activitat',
+				descripcion: 'Descripció',
+				direccion_postal: 'Adreça Postal',
+				documento: 'Documentació',
+				email: 'Correu',
+				fechas: 'Dates',
+				plazas_libres: 'Places Lliures',
+				precio: 'Preu',
+				tipo_actividad: "Tipus d'activitat",
+				alojamiento: 'Nom Allotjament',
+				enlace_alojamiento: 'Enlaç Allotjament'
+			}
+			
+			var infoImages = {
+				"Experiencia rural": "img/rural.jpg",
+				"Experiencia històrica": "img/historica.jpg",
+				"Experiencia saludable": "img/saludable.jpg"
+			}
+			
 			function init() {
 				$("#toggleForm").click(function() {$("#formulario").toggle();});
 				
 				map = new L.Map('map');
-
+				popup = new L.Popup();
+				
 				var cloudmade = new L.TileLayer('http://{s}.tile.mapbox.com/v3/mapbox.mapbox-light/{z}/{x}/{y}.png', {
-					attribution : 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+					attribution : 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
 					maxZoom : 17
 				});
 				
 				cartodb_comarcas = addCartoDBLayer('comarcas', "SELECT * FROM {{table_name}} where false");
 				cartodb_municipios = addCartoDBLayer('municipios', "SELECT * FROM {{table_name}} WHERE false");
 				
-				// geographical point (longitude and latitude)
 				map.addLayer(cloudmade);
 				cartodb_actividades = new L.CartoDBLayer({
-				          map_canvas: 'map_canvas',
-				          map: map,
-				          user_name:"ruralactiu",
-				          table_name: 'actividades',
-				          query: filtroTodasLasActividades,
-				          infowindow: "SELECT * FROM {{table_name}} WHERE cartodb_id={{feature}}",
-				          auto_bound: false,
-				          debug: true
-				        });
-				map.addLayer(cartodb_actividades);
-				
-				// Zoom a actividades
-				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT "
-						+ "ST_XMin (ST_Extent(the_geom)) as xmin,"
-						+ "ST_XMax (ST_Extent(the_geom)) as xmax,"
-						+ "ST_YMin (ST_Extent(the_geom)) as ymin,"
-						+ "ST_YMax (ST_Extent(the_geom)) as ymax "
-						+ "FROM actividades",
-						dataType:"json"}).done(function ( data ) {
-					var bbox = data.rows[0];
-					map.fitBounds(new L.LatLngBounds(new L.LatLng(bbox.ymin, bbox.xmin), new L.LatLng(bbox.ymax, bbox.xmax)));
+				    map: map,
+				    user_name:"ruralactiu",
+				    table_name: 'actividades',
+				    query: filtroTodasLasActividades,
+				    interactivity: "tipo_actividad, alojamiento, descripcion, direccion_postal, documento, email, enlace_alojamiento, fechas, nombre, plazas_libres, precio",
+				    auto_bound: true,
+				    debug: false,
+				    featureMouseOver: function(data) {
+				        document.body.style.cursor = "pointer";
+				    },
+				    featureMouseOut: function() {
+				        document.body.style.cursor = "default";
+				    },
+				    featureMouseClick: function(latlng, data) {
+				        // Set popup content
+				        var html = '<img class="leaflet-popup-image" src="' + infoImages[data["tipo_actividad"]] + '" width="96"/>';
+				        for(var column in data) {
+				        	if (column == 'email') {
+				        		data[column] = "<a href='mailto:" + data[column] + "'>Correu de contacte</a>";
+				        	} else if (column == "documento") {
+				        		data[column] = "<a href='" + data[column] + "' target='_blank'>Detalls sobre l'activitat</a>";
+				        	} else if (column == "enlace_alojamiento") {
+				        		data[column] = "<a href='" + data[column] + "' target='_blank'>Detalls sobre l'allotjament</a>";
+				        	}
+				            html += '<label class="leaflet-popup-title">' + infoLabels[column] + '</label>';
+				            html += '<p class="leaflet-popup-variable">' + data[column] + '</p>';
+				        }
+				        popup.setContent(html);
+				        popup.setLatLng(latlng);
+				        map.openPopup(popup);
+				    }
 				});
+				map.addLayer(cartodb_actividades);
 
 				// Combo de comarcas
 				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT "
@@ -78,6 +112,7 @@
 						$('#cmbComarcas').append($('<option>'+row.nombre+'</option>').val(row.id));
 					}
 				});
+				
 				// Combo de tipos de actividad
 				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT distinct(tipo_actividad) FROM actividades order by tipo_actividad",dataType:"json"}).done(function ( data ) {
 					for (i in data.rows) {
@@ -91,19 +126,17 @@
 					comarcaCode = $('#cmbComarcas').val();
 					if (comarcaCode != -1) {
 						var bbox = comarcas[comarcaCode];
+						cartodb_comarcas.setQuery("SELECT * FROM {{table_name}} where id='" + comarcaCode + "'");
+						cartodb_municipios.setQuery("SELECT * FROM {{table_name}} where id_comarca='" + comarcaCode + "'");
 						map.fitBounds(new L.LatLngBounds(new L.LatLng(bbox.ymin, bbox.xmin), new L.LatLng(bbox.ymax, bbox.xmax)));
-						//cartodb_comarcas.update({query:"SELECT * FROM {{table_name}} where id='" + comarcaCode + "'"});
-						//cartodb_municipios.update({query:"SELECT * FROM {{table_name}} where id_comarca='" + comarcaCode + "'"});
-						cartodb_comarcas = updateCartoDBLayer(cartodb_comarcas, 'comarcas', "SELECT * FROM {{table_name}} where id='" + comarcaCode + "'");
-						cartodb_municipios = updateCartoDBLayer(cartodb_municipios, 'municipios', "SELECT * FROM {{table_name}} where id_comarca='" + comarcaCode + "'");
 						console.log(map._layers);
 					}
 
 					// Rellena municipios
-					$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT id,nombre ,ST_XMin (the_geom) as xmin,ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax FROM municipios where id_comarca='" + comarcaCode + "' order by nombre",dataType:"json"}).done(function ( data ) {
-						municipios = new Object();
+					$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT id,nombre ,ST_XMin (the_geom) as xmin,ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax FROM municipios where id_comarca='" + comarcaCode + "' order by nombre",dataType:"json"}).done(function (data) {
 						$('#cmbMunicipios').children().remove();
 						$('#cmbMunicipios').append($('<option>(municipi)</option>').val(-1));
+						municipios = {};
 						for (i in data.rows) {
 							var row = data.rows[i];
 							municipios[row.id] = {'xmin':row.xmin, 'ymin':row.ymin, 'xmax':row.xmax, 'ymax':row.ymax};
@@ -111,6 +144,7 @@
 						}
 					});
 				});
+				
 				$('#cmbMunicipios').change(function() {
 					municipioCode = $('#cmbMunicipios').val();
 					if (municipioCode != -1) {
@@ -118,6 +152,7 @@
 						map.fitBounds(new L.LatLngBounds(new L.LatLng(bbox.ymin, bbox.xmin), new L.LatLng(bbox.ymax, bbox.xmax)));
 					}
 				});
+				
 				$('#cmbTipoActividad').change(function() {
 					tipoActividad = $('#cmbTipoActividad').val();
 					if (tipoActividad != -1) {
@@ -125,6 +160,7 @@
 								"tipo_actividad='" + tipoActividad + "'");
 					}
 				});
+				
 				$('#btnBusqueda').click(function() {
 					updateCartoDBActividades("SELECT * FROM {{table_name}} where "
 							+ "lower(descripcion) like '%"	+ $('#txtBusqueda').val() + "%' "
@@ -132,6 +168,7 @@
 							"lower(descripcion) like '%25"	+ $('#txtBusqueda').val() + "%25' "
 							+ "or lower(nombre) like '%25" + $('#txtBusqueda').val() + "%25'");
 				});
+				
 				$('#btnTodos').click(function() {
 					updateCartoDBActividades(filtroTodasLasActividades, "true");
 				});
@@ -139,34 +176,25 @@
 			
 			function addCartoDBLayer(tablename, query) {
 				var cartoDBLayer = new L.CartoDBLayer({
-					map_canvas: 'map_canvas',
 					map: map,
 					user_name:"ruralactiu",
 					table_name: tablename,
 					query: query,
-					auto_bound: false,
-					debug: true
+					auto_bound: true,
+					debug: false
 				});
 				map.addLayer(cartoDBLayer);
-				
 				return cartoDBLayer;
-			}
-			
-			function updateCartoDBLayer(oldLayer, tablename, query) {				
-				
-				map.removeLayer(oldLayer);
-				var cartoDBLayer = addCartoDBLayer(tablename, query);
-				return cartoDBLayer;		
 			}
 
 			function updateCartoDBActividades(layerQuery, extentWhere) {
-				cartodb_actividades.update({query:layerQuery});
+				cartodb_actividades.setQuery(layerQuery);
 				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT "
 						+ "ST_XMin (ST_Extent(the_geom)) as xmin,"
 						+ "ST_XMax (ST_Extent(the_geom)) as xmax,"
 						+ "ST_YMin (ST_Extent(the_geom)) as ymin,"
 						+ "ST_YMax (ST_Extent(the_geom)) as ymax "
-							+ "FROM actividades WHERE " + extentWhere, dataType:"json"}).done(function ( data ) {
+							+ "FROM actividades WHERE " + extentWhere, dataType:"json"}).done(function(data) {
 					if (data.rows.length > 0) {
 						var row = data.rows[0];
 						var sw = new L.LatLng(row.ymin, row.xmin);
@@ -187,7 +215,6 @@
 						map.fitBounds(new L.LatLngBounds(sw, ne));
 					}
 				});
-				
 			}
 		</script>
 	</head>

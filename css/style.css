@@ -70,6 +70,13 @@ h4 {
 	margin: 0;
 }
 
+.leaflet-popup-image {
+	float: left;
+	position: relative;
+	margin: 7px;
+	border: 1px solid gray;
+}
+
 .leaflet-popup-title {
 	font-weight: bold;
 	border-bottom: 2px solid #CCCCCC;
@@ -77,5 +84,7 @@ h4 {
 
 .leaflet-popup-variable {
 	font-style: italic;
-	border-bottom: 1px solid #CCCCCC;
+
 }
+
+
