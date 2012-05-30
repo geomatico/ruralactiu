@@ -26,7 +26,6 @@
 			var cartodb_comarcas;
 			var cartodb_municipios;
 			var filtroTodasLasActividades = "SELECT * FROM {{table_name}}";
-			var popup;
 			
 			var infoLabels = {
 				nombre: 'Activitat',
@@ -49,10 +48,10 @@
 			}
 			
 			function init() {
+				$.ajaxSetup({ cache: false }); // IE shit
 				$("#toggleForm").click(function() {$("#formulario").toggle();});
 				
 				map = new L.Map('map');
-				popup = new L.Popup();
 				
 				var cloudmade = new L.TileLayer('http://{s}.tile.mapbox.com/v3/mapbox.mapbox-light/{z}/{x}/{y}.png', {
 					attribution : 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
@@ -79,17 +78,21 @@
 				    },
 				    featureMouseClick: function(latlng, data) {
 				        // Set popup content
+				        var popup = new L.Popup();
 				        var html = '<img class="leaflet-popup-image" src="' + infoImages[data["tipo_actividad"]] + '" width="96"/>';
 				        for(var column in data) {
+				        	var d;
 				        	if (column == 'email') {
-				        		data[column] = "<a href='mailto:" + data[column] + "'>Correu de contacte</a>";
+				        		d = "<a href='mailto:" + data[column] + "'>Correu de contacte</a>";
 				        	} else if (column == "documento") {
-				        		data[column] = "<a href='" + data[column] + "' target='_blank'>Detalls sobre l'activitat</a>";
+				        		d = "<a href='" + data[column] + "' target='_blank'>Detalls sobre l'activitat</a>";
 				        	} else if (column == "enlace_alojamiento") {
-				        		data[column] = "<a href='" + data[column] + "' target='_blank'>Detalls sobre l'allotjament</a>";
+				        		d = "<a href='" + data[column] + "' target='_blank'>Detalls sobre l'allotjament</a>";
+				        	} else {
+				        		d = data[column]
 				        	}
-				            html += '<label class="leaflet-popup-title">' + infoLabels[column] + '</label>';
-				            html += '<p class="leaflet-popup-variable">' + data[column] + '</p>';
+				        	html += '<label class="leaflet-popup-title">' + infoLabels[column] + '</label>';
+				        	html += '<p class="leaflet-popup-variable">' + d + '</p>';
 				        }
 				        popup.setContent(html);
 				        popup.setLatLng(latlng);
@@ -99,22 +102,22 @@
 				map.addLayer(cartodb_actividades);
 
 				// Combo de comarcas
-				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT "
+				$.getJSON("proxy/?q=SELECT "
 						+ "id, nombre, "
 						+ "ST_XMin(the_geom) as xmin, ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax "
 						+ "FROM comarcas order by nombre",
-					dataType:"json"}).done(function ( data ) {
-					comarcas = new Object();
-					$('#cmbComarcas').append($('<option>(comarca)</option>').val(-1));
-					for (i in data.rows) {
-						var row = data.rows[i];
-						comarcas[row.id] = {'xmin':row.xmin, 'ymin':row.ymin, 'xmax':row.xmax, 'ymax':row.ymax};
-						$('#cmbComarcas').append($('<option>'+row.nombre+'</option>').val(row.id));
-					}
+					function ( data ) {
+						comarcas = new Object();
+						$('#cmbComarcas').append($('<option>(comarca)</option>').val(-1));
+						for (i in data.rows) {
+							var row = data.rows[i];
+							comarcas[row.id] = {'xmin':row.xmin, 'ymin':row.ymin, 'xmax':row.xmax, 'ymax':row.ymax};
+							$('#cmbComarcas').append($('<option>'+row.nombre+'</option>').val(row.id));
+						}
 				});
 				
 				// Combo de tipos de actividad
-				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT distinct(tipo_actividad) FROM actividades order by tipo_actividad",dataType:"json"}).done(function ( data ) {
+				$.getJSON("proxy/?q=SELECT distinct(tipo_actividad) FROM actividades order by tipo_actividad", function (data) {
 					for (i in data.rows) {
 						var row = data.rows[i];
 						$('#cmbTipoActividad').append($('<option>'+row.tipo_actividad+'</option>').val(row.tipo_actividad));
@@ -133,15 +136,16 @@
 					}
 
 					// Rellena municipios
-					$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT id,nombre ,ST_XMin (the_geom) as xmin,ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax FROM municipios where id_comarca='" + comarcaCode + "' order by nombre",dataType:"json"}).done(function (data) {
-						$('#cmbMunicipios').children().remove();
-						$('#cmbMunicipios').append($('<option>(municipi)</option>').val(-1));
-						municipios = {};
-						for (i in data.rows) {
-							var row = data.rows[i];
-							municipios[row.id] = {'xmin':row.xmin, 'ymin':row.ymin, 'xmax':row.xmax, 'ymax':row.ymax};
-							$('#cmbMunicipios').append($('<option>'+row.nombre+'</option>').val(row.id));
-						}
+					$.getJSON("proxy/?q=SELECT id,nombre ,ST_XMin (the_geom) as xmin,ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax FROM municipios where id_comarca='" + comarcaCode + "' order by nombre",
+						function (data) {
+							$('#cmbMunicipios').children().remove();
+							$('#cmbMunicipios').append($('<option>(municipi)</option>').val(-1));
+							municipios = {};
+							for (i in data.rows) {
+								var row = data.rows[i];
+								municipios[row.id] = {'xmin':row.xmin, 'ymin':row.ymin, 'xmax':row.xmax, 'ymax':row.ymax};
+								$('#cmbMunicipios').append($('<option>'+row.nombre+'</option>').val(row.id));
+							}
 					});
 				});
 				
@@ -189,12 +193,12 @@
 
 			function updateCartoDBActividades(layerQuery, extentWhere) {
 				cartodb_actividades.setQuery(layerQuery);
-				$.ajax({url: "http://ruralactiu.cartodb.com/api/v2/sql?q=SELECT "
+				$.getJSON("proxy/?q=SELECT "
 						+ "ST_XMin (ST_Extent(the_geom)) as xmin,"
 						+ "ST_XMax (ST_Extent(the_geom)) as xmax,"
 						+ "ST_YMin (ST_Extent(the_geom)) as ymin,"
 						+ "ST_YMax (ST_Extent(the_geom)) as ymax "
-							+ "FROM actividades WHERE " + extentWhere, dataType:"json"}).done(function(data) {
+							+ "FROM actividades WHERE " + extentWhere, function(data) {
 					if (data.rows.length > 0) {
 						var row = data.rows[0];
 						var sw = new L.LatLng(row.ymin, row.xmin);
