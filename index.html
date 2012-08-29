@@ -28,23 +28,25 @@
 			var filtroTodasLasActividades = "SELECT * FROM {{table_name}}";
 			
 			var infoLabels = {
-				nombre: 'Activitat',
-				descripcion: 'Descripció',
-				direccion_postal: 'Adreça Postal',
-				documento: 'Documentació',
-				email: 'Correu',
-				fechas: 'Dates',
-				plazas_libres: 'Places Lliures',
-				precio: 'Preu',
-				tipo_actividad: "Tipus d'activitat",
-				alojamiento: 'Nom Allotjament',
-				enlace_alojamiento: 'Enlaç Allotjament'
+				c01_nombre: 'Activitat',
+				c02_tipo_actividad: "Experiència",
+				c03_descripcion: 'Descripció',
+				c04_precio: 'Preu',
+				c05_fechas: 'Dates',
+				c06_plazas_libres: 'Places Lliures',
+				c07_documento: 'Descarrega\'t la informació',
+                c08_reserva: 'Reserva',
+				c09_email: 'Contacta',
+                c10_tlf: 'Telefon',
+				c11_alojamiento: 'Allotjament Rural',
+				c12_direccion_postal: 'Adreça Postal',
+				c13_enlace_alojamiento: 'Enllaç Allotjament Rural'
 			}
 			
 			var infoImages = {
-				"Experiencia rural": "img/rural.jpg",
-				"Experiencia històrica": "img/historica.jpg",
-				"Experiencia saludable": "img/saludable.jpg"
+				"Experiència rural": "img/rural.jpg",
+				"Experiència històrica": "img/historica.jpg",
+				"Experiència saludable": "img/saludable.jpg"
 			}
 			
 			function init() {
@@ -67,7 +69,7 @@
 				    user_name:"ruralactiu",
 				    table_name: 'actividades',
 				    query: filtroTodasLasActividades,
-				    interactivity: "tipo_actividad, alojamiento, descripcion, direccion_postal, documento, email, enlace_alojamiento, fechas, nombre, plazas_libres, precio",
+				    interactivity: "c01_nombre, c02_tipo_actividad, c03_descripcion, c04_precio, c05_fechas, c06_plazas_libres, c07_documento, c08_reserva, c09_email, c10_tlf, c11_alojamiento, c12_direccion_postal, c13_enlace_alojamiento",
 				    auto_bound: true,
 				    debug: false,
 				    featureMouseOver: function(data) {
@@ -79,15 +81,17 @@
 				    featureMouseClick: function(latlng, data) {
 				        // Set popup content
 				        var popup = new L.Popup();
-				        var html = '<img class="leaflet-popup-image" src="' + infoImages[data["tipo_actividad"]] + '" width="96"/>';
+				        var html = '<img class="leaflet-popup-image" src="' + infoImages[data["c02_tipo_actividad"]] + '" width="96"/>';
 				        for(var column in data) {
 				        	var d;
-				        	if (column == 'email') {
-				        		d = "<a href='mailto:" + data[column] + "'>Correu de contacte</a>";
-				        	} else if (column == "documento") {
-				        		d = "<a href='" + data[column] + "' target='_blank'>Detalls sobre l'activitat</a>";
-				        	} else if (column == "enlace_alojamiento") {
-				        		d = "<a href='" + data[column] + "' target='_blank'>Detalls sobre l'allotjament</a>";
+				        	if (column == "c07_documento") {
+				        		d = "<a href='" + data[column] + "' target='_blank'>Descarrega't la informació</a>";
+				        	} else if (column == 'c08_reserva') {
+				        		d = "<a href='mailto:" + data[column] + "'>Fes la teva reserva</a>";
+				        	} else if (column == 'c09_email') {
+				        		d = "<a href='mailto:" + data[column] + "'>Contacta</a>";
+				        	} else if (column == "c13_enlace_alojamiento") {
+				        		d = "<a href='" + data[column] + "' target='_blank'>" + data[column] + "</a>";
 				        	} else {
 				        		d = data[column]
 				        	}
@@ -117,10 +121,10 @@
 				});
 				
 				// Combo de tipos de actividad
-				$.getJSON("proxy/?q=SELECT distinct(tipo_actividad) FROM actividades order by tipo_actividad", function (data) {
+				$.getJSON("proxy/?q=SELECT distinct(c02_tipo_actividad) FROM actividades order by c02_tipo_actividad", function (data) {
 					for (i in data.rows) {
 						var row = data.rows[i];
-						$('#cmbTipoActividad').append($('<option>'+row.tipo_actividad+'</option>').val(row.tipo_actividad));
+						$('#cmbTipoActividad').append($('<option>'+row.c02_tipo_actividad+'</option>').val(row.c02_tipo_actividad));
 					}
 				});
 				
@@ -136,7 +140,7 @@
 					}
 
 					// Rellena municipios
-					$.getJSON("proxy/?q=SELECT id,nombre ,ST_XMin (the_geom) as xmin,ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax FROM municipios where id_comarca='" + comarcaCode + "' order by nombre",
+					$.getJSON("proxy/?q=SELECT id, nombre ,ST_XMin (the_geom) as xmin,ST_XMax (the_geom) as xmax,ST_YMin (the_geom) as ymin,ST_YMax (the_geom) as ymax FROM municipios where id_comarca='" + comarcaCode + "' order by nombre",
 						function (data) {
 							$('#cmbMunicipios').children().remove();
 							$('#cmbMunicipios').append($('<option>(municipi)</option>').val(-1));
@@ -160,17 +164,17 @@
 				$('#cmbTipoActividad').change(function() {
 					tipoActividad = $('#cmbTipoActividad').val();
 					if (tipoActividad != -1) {
-						updateCartoDBActividades("SELECT * FROM {{table_name}} WHERE tipo_actividad='" + tipoActividad + "'",
-								"tipo_actividad='" + tipoActividad + "'");
+						updateCartoDBActividades("SELECT * FROM {{table_name}} WHERE c02_tipo_actividad='" + tipoActividad + "'",
+								"c02_tipo_actividad='" + tipoActividad + "'");
 					}
 				});
 				
 				$('#btnBusqueda').click(function() {
 					updateCartoDBActividades("SELECT * FROM {{table_name}} where "
-							+ "lower(descripcion) like '%"	+ $('#txtBusqueda').val() + "%' "
-							+ "or lower(nombre) like '%" + $('#txtBusqueda').val() + "%'",
-							"lower(descripcion) like '%25"	+ $('#txtBusqueda').val() + "%25' "
-							+ "or lower(nombre) like '%25" + $('#txtBusqueda').val() + "%25'");
+							+ "lower(c03_descripcion) like '%"	+ $('#txtBusqueda').val() + "%' "
+							+ "or lower(c01_nombre) like '%" + $('#txtBusqueda').val() + "%'",
+							"lower(c03_descripcion) like '%25"	+ $('#txtBusqueda').val() + "%25' "
+							+ "or lower(c01_nombre) like '%25" + $('#txtBusqueda').val() + "%25'");
 				});
 				
 				$('#btnTodos').click(function() {
