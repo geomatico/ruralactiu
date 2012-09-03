@@ -87,9 +87,9 @@
 				        	if (column == "c07_documento") {
 				        		d = "<a href='" + data[column] + "' target='_blank'>Descarrega't la informació</a>";
 				        	} else if (column == 'c08_reserva') {
-				        		d = "<a href='mailto:" + data[column] + "'>Fes la teva reserva</a>";
+				        		d = "<a href='" + data[column] + "' target='_blank'>Fes la teva reserva</a>";
 				        	} else if (column == 'c09_email') {
-				        		d = "<a href='mailto:" + data[column] + "'>Contacta</a>";
+				        		d = "<a href='mailto:" + data[column] + "'>" + data[column] + "</a>";
 				        	} else if (column == "c13_enlace_alojamiento") {
 				        		d = "<a href='" + data[column] + "' target='_blank'>" + data[column] + "</a>";
 				        	} else {
