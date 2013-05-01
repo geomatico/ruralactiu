@@ -6,10 +6,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta names="apple-mobile-web-app-status-bar-style" content="black" />
   <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v2/themes/css/cartodb.css" />
+  <link rel="stylesheet" href="css/style.css" />
   <!--[if lte IE 8]>
     <link rel="stylesheet" href="http://libs.cartodb.com/cartodb.js/v2/themes/css/cartodb.ie.css" />
   <![endif]-->
-  <link rel="stylesheet" href="css/style.css" />
   <script src="http://libs.cartocdn.com/cartodb.js/v2/cartodb.js"></script>
   <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
   <script type="infowindow/html" id="infowindow_template">
@@ -17,10 +17,10 @@
       <a class="cartodb-popup-close-button close" href="#close">x</a>
       <div class="cartodb-popup-header">
         <div class="cover">
+          <div id="spinner"></div>
           <span class="separator"></span>
           <h1 class="order1">{{content.data.c01_nombre}}</h1>
           <div class="shadow"></div>
-          <img src="{{content.data.imageurl}}" style="width: 218px; top: 50%; position: absolute; margin-top: -72.5px; display: inline;">
         </div>
       </div>
       <div class="cartodb-popup-content-wrapper">
