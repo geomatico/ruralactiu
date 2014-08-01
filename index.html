@@ -73,9 +73,9 @@
       updateCartoDBActividades(false, true);
 
       // Base layer
-      cloudmadeUrl = 'http://{s}.tile.cloudmade.com/f9b48b21a87048bfb118148491d22ec5/{styleId}/256/{z}/{x}/{y}.png',
-      cloudmadeAttribution = 'Map data &copy; OpenStreetMap contributors, imagery &copy; CloudMade';
-      minimal = L.tileLayer(cloudmadeUrl, {styleId: 22677, attribution: cloudmadeAttribution});
+      stamenUrl = 'http://{s}.tile.stamen.com/{styleId}/{z}/{x}/{y}.png',
+      stamenAttribution = 'Map tiles by Stamen Design, data &copy; OpenStreetMap contributors';
+      minimal = L.tileLayer(stamenUrl, {styleId: "toner", attribution: stamenAttribution});
       minimal.addTo(map);
 
       // Municipios
