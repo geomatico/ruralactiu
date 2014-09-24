@@ -1,23 +1,24 @@
 /** simple visualization */
 
-#municipios{
+#comarcas{
   polygon-fill: #000000;
   polygon-opacity: 0.1;
-  line-color: #FFFFFF;
-  line-width: 2;
+  line-color: #FFF;
+  line-width: 3;
   line-opacity: 1;
 }
 
-#municipios::labels {
+#comarcas::labels[zoom>8] {
   text-name: [nombre];
   text-face-name: 'DejaVu Sans Book';
-  text-size: 12;
-  text-label-position-tolerance: 0;
+  text-size: 17;
+  text-label-position-tolerance: 10;
   text-fill: #000;
   text-halo-fill: #FFF;
-  text-halo-radius: 1;
+  text-halo-radius: 2;
   text-dy: -10;
-  text-allow-overlap: true;
+  text-allow-overlap: false;
   text-placement: point;
-  text-placement-type: dummy;
+  text-placement-type: simple;
 }
+
