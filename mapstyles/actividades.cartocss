@@ -1,0 +1,19 @@
+/** category visualization */
+
+#actividades {
+   marker-fill-opacity: 0.9;
+   marker-line-color: #FFF;
+   marker-line-width: 1.5;
+   marker-line-opacity: 1;
+   marker-placement: point;
+   marker-type: ellipse;
+   marker-width: 10;
+   marker-allow-overlap: true;
+}
+
+#actividades[c02_tipo_actividad="Experiència rural"] {
+   marker-fill: #229A00;
+}
+#actividades[c02_tipo_actividad="Experiència saludable"] {
+   marker-fill: #A53ED5;
+}

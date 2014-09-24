@@ -1,0 +1,23 @@
+/** simple visualization */
+
+#municipios{
+  polygon-fill: #000000;
+  polygon-opacity: 0.1;
+  line-color: #FFFFFF;
+  line-width: 2;
+  line-opacity: 1;
+}
+
+#municipios::labels {
+  text-name: [nombre];
+  text-face-name: 'DejaVu Sans Book';
+  text-size: 12;
+  text-label-position-tolerance: 0;
+  text-fill: #000;
+  text-halo-fill: #FFF;
+  text-halo-radius: 1;
+  text-dy: -10;
+  text-allow-overlap: true;
+  text-placement: point;
+  text-placement-type: dummy;
+}
